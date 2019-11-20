@@ -82,54 +82,24 @@ bool HelloWorld::init()
 
     /////////////////////////////
     // 3. add your codes below...
+	auto cache = SpriteFrameCache::getInstance();
+	cache->addSpriteFramesWithFile("anim.plist");
+	Vector<SpriteFrame*> vec;
+	char name[15];
+	memset(name, 0, 15);
+	for (int i=0; i < 20; i++) {
+		sprintf(name, "anim%04d", i);
+		vec.pushBack(cache->getSpriteFrameByName(name));
+	}
 
-    // add a label shows "Hello World"
-    // create and initialize a label
+	Animation *animation = Animation::createWithSpriteFrames(vec, 0.1f);
+	Animate *animate = Animate::create(animation);
+	auto sprite = Sprite::create();
+	sprite->setPosition(200, 200);
+	sprite->runAction(RepeatForever::create(animate));
+	this->addChild(sprite);
+	
 
-    auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
-    if (label == nullptr)
-    {
-        problemLoading("'fonts/Marker Felt.ttf'");
-    }
-    else
-    {
-        // position the label on the center of the screen
-        label->setPosition(Vec2(origin.x + visibleSize.width/2,
-                                origin.y + visibleSize.height - label->getContentSize().height));
-
-        // add the label as a child to this layer
-        this->addChild(label, 1);
-		auto listener = EventListenerTouchOneByOne::create();
-		listener->onTouchBegan = [label](Touch *t, Event *e) {
-			if (label->getBoundingBox().containsPoint(t->getLocation())) {
-				//label->runAction(MoveBy::create(1, Vec2(-10, -10))->reverse());
-				label->runAction(Sequence::create(MoveBy::create(0.5, Vec2(-10, -10)), 
-					JumpBy::create(0.5, Vec2(-10, 0), 10, 2), 
-					CallFunc::create([]() {
-						MessageBox("Auto complete", "complete");
-					}),
-					NULL));
-			}
-			return false;
-		};
-		Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, label);
-		label->runAction(Repeat::create(RotateBy::create(1, 180), 4));
-    }
-
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png");
-    if (sprite == nullptr)
-    {
-        problemLoading("'HelloWorld.png'");
-    }
-    else
-    {
-        // position the sprite on the center of the screen
-        sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-
-        // add the sprite as a child to this layer
-        this->addChild(sprite, 0);
-    }
     return true;
 }
 
