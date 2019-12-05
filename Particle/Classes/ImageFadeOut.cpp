@@ -1,14 +1,12 @@
 #include "ImageFadeOut.h"
 
-
-
 ImageFadeOut::ImageFadeOut() : _pointAMovingDistance(0), _pointBMovingDistance(0)
 {
 }
 
-
 ImageFadeOut::~ImageFadeOut()
 {
+	CC_SAFE_DELETE(_image);
 }
 
 ImageFadeOut * ImageFadeOut::create(std::string image)
@@ -26,6 +24,9 @@ bool ImageFadeOut::initWithImage(std::string image)
 	if (Node::init() == false) {
 		return false;
 	}
+
+	_image = new Image();
+	_image->initWithImageFile(image);
 
 	_displayClipping = DrawNode::create();
 	auto display = Sprite::create(image);
@@ -94,4 +95,38 @@ void ImageFadeOut::update(float d)
 
 	_displayClipping->clear();
 	_displayClipping->drawPolygon(points, pointCnt, Color4F(200.0f, 100.0f, 1.0f, 1.0f), 0, Color4F(0, 0, 0, 0));
+
+	// Get color from the line pointA to pointB
+	// The algorithm can only handle .png
+	int x = pointA.x, y = pointA.y;
+	auto pixel = (unsigned int*)_image->getData();
+	auto imageHeight = _image->getHeight();
+	auto imageWidth = _image->getWidth();
+	while (x < pointB.x && y>0) {
+		auto colorPtr = pixel + (imageHeight - y)*imageWidth + x;
+		
+		// transparent
+		if ((*colorPtr >> 24 & 0xff) < 0xff) {
+			x += step;
+			y -= step;
+			continue;
+		}
+
+		Color4F color(
+			(*colorPtr & 0xff) / 255.0f,
+			(*colorPtr >> 8 & 0xff) / 255.0f,
+			(*colorPtr >> 16 & 0xff) / 255.0f,
+			1.0f
+		);
+
+		auto p = ParticleSystemQuad::create("fire.plist");
+		p->setStartColor(color);
+		p->setEndColor(color);
+		p->setAutoRemoveOnFinish(true);
+		p->setPosition(Vec2(x, y));
+		addChild(p);
+
+		x += step;
+		y -= step;
+	}
 }

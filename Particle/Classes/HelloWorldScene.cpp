@@ -49,7 +49,7 @@ bool HelloWorld::init()
     }
 
     auto visibleSize = Director::getInstance()->getVisibleSize();
-	auto img = ImageFadeOut::create("test.jpg");
+	auto img = ImageFadeOut::create("photo.png");
 	img->setPosition(visibleSize / 2);
 	this->addChild(img);
     return true;
