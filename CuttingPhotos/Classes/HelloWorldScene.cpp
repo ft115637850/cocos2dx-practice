@@ -50,9 +50,8 @@ bool HelloWorld::init()
 
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
-	CuttingPhotos *photo = CuttingPhotos::create("turtle.jpg", 3, 3);
+	CuttingPhotos *photo = CuttingPhotos::create("turtle.jpg", 5, 5);
 	// position the sprite on the center of the screen
-	photo->setAnchorPoint(Vec2(0, 0));
 	auto photoSize = photo->getContentSize();
 	photo->setPosition(Vec2(visibleSize.width / 2 + origin.x - photoSize.width/2, visibleSize.height / 2 + origin.y - photoSize.height / 2));
 

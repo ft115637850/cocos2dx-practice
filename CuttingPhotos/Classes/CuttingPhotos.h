@@ -19,6 +19,8 @@ private:
 	bool initWithPhoto(const char* photo, unsigned int rows, unsigned int columns);
 	bool initSlices(const char* photo);
 	void initTouchEventListener();
-	void move(int x, int y);
+	void move(int x, int y, bool isStarting);
+	bool isMovableSlice(int x, int y);
+	std::vector<Point> findAllMovableSlices();
 };
 
