@@ -1,6 +1,6 @@
 #pragma once
 
-#include<functional>
+#include <functional>
 #include "CardData.h"
 #include "CardState.h"
 
