@@ -5,7 +5,7 @@
 
 USING_NS_CC;
 
-class Card : public ICard, public Node
+class Card : public ICard
 {
 protected:
 	CardState _state;

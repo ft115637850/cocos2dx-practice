@@ -26,6 +26,7 @@
 #include "SimpleAudioEngine.h"
 #include "Card.h"
 #include "CardFactory.h"
+#include "MemoryCardLevel.h"
 
 Scene* HelloWorld::createScene()
 {
@@ -52,11 +53,22 @@ bool HelloWorld::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-	CardFactory fac;
-	auto card = dynamic_cast<Card*>(fac.createCard(0, 1));
+	/*CardFactory fac;
+	auto card = fac.createCard(5, 3);
 	card->setPosition(Vec2(visibleSize.width/2, visibleSize.height/2));
 	addChild(card);
-	card->flipToFront();
+	card->flipToFront();*/
+	LevelData data = {};
+	data.rows = 4;
+	data.columns = 3;
+	auto level = MemoryCardLevel::create(data);
+	auto levelSize = level->getContentSize();
+	level->setAnchorPoint(Vec2(0.5, 0.5));
+	level->ignoreAnchorPointForPosition(false);
+	level->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
+	auto scale = visibleSize.height / (levelSize.height + 40);
+	level->setScale(scale);
+	this->addChild(level);
     return true;
 }
 
