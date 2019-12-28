@@ -3,13 +3,14 @@
 
 
 
-MemoryCardLevel::MemoryCardLevel()
+MemoryCardLevel::MemoryCardLevel(): _selCardA(nullptr), _selCardB(nullptr), _unfinishedCard(0)
 {
 }
 
 MemoryCardLevel::~MemoryCardLevel()
 {
 	this->removeAllChildren();
+	this->_eventDispatcher->removeAllEventListeners();
 }
 
 MemoryCardLevel * MemoryCardLevel::create(LevelData levelData)
@@ -36,22 +37,29 @@ bool MemoryCardLevel::initWithLevelData(LevelData levelData)
 
 	_levelData = levelData;
 	initCardLaryout();
+	initTouchEvent();
 	return true;
+}
+
+void MemoryCardLevel::registerCallfunc(std::function<void(CardData*cardA, CardData*cardB)> pairCallback, std::function<void()> completeCallback)
+{
+	_pairCallback = pairCallback;
+	_completeCallback = completeCallback;
 }
 
 void MemoryCardLevel::initCardLaryout()
 {
 	int backId = CCRANDOM_0_1() * 8;
 
-	for (int row = 0; row < _levelData.rows; ++row) {
+	for (unsigned int row = 0; row < _levelData.rows; ++row) {
 		std::vector<ICard*> r(_levelData.columns);
 		_cardTable.push_back(r);
 	}
 
 	CardFactory factory;
 	int number = 0;
-	for (int row = 0; row < _levelData.rows; ++row) {
-		for (int column = 0; column < _levelData.columns; ++column) {
+	for (unsigned int row = 0; row < _levelData.rows; ++row) {
+		for (unsigned int column = 0; column < _levelData.columns; ++column) {
 			// Create card
 			ICard* card = factory.createCard(backId, number / 2);
 			card->getCardData()->row = row;
@@ -77,4 +85,107 @@ void MemoryCardLevel::initCardLaryout()
 		}
 	}
 	this->_unfinishedCard = number;
+}
+
+void MemoryCardLevel::initTouchEvent()
+{
+	auto listener = EventListenerTouchOneByOne::create();
+	listener->onTouchBegan = [&](Touch* touch, Event* event) {
+		Point locationInNode = this->convertToNodeSpace(touch->getLocation());
+		Size s = this->getContentSize();
+		Rect rect = Rect(0, 0, s.width, s.height);
+		if (rect.containsPoint(locationInNode)) {
+			return true;
+		}
+		return false;
+	};
+
+	listener->onTouchEnded = [&](Touch* touch, Event* event) {
+		Point locationInNode = this->convertToNodeSpace(touch->getLocation());
+		ICard* selCard = nullptr;
+		for (unsigned row = 0; row < _levelData.rows; row++) {
+			auto cards = _cardTable[row];
+			for (unsigned column = 0; column < _levelData.columns; column++) {
+				auto card = cards[column];
+				if (nullptr == card) {
+					continue;
+				}
+
+				auto size = card->getContentSize();
+				auto pos = card->getPosition();
+				auto rect = Rect(pos.x - size.width / 2, pos.y - size.height / 2, size.width, size.height);
+				if (rect.containsPoint(locationInNode)) {
+					selCard = card;
+					break;
+				}
+			}
+
+			if (selCard != nullptr) {
+				break;
+			}
+		}
+
+		if (nullptr == selCard || selCard == _selCardA) {
+			return;
+		}
+
+		if (nullptr == _selCardA) {
+			_selCardA = selCard;
+			_selCardA->flipToFront();
+		}
+		else
+		{
+			_selCardB = selCard;
+
+			auto dataA = _selCardA->getCardData();
+			auto dataB = _selCardB->getCardData();
+
+			if (_pairCallback != nullptr) {
+				_pairCallback(dataA, dataB);
+			}
+
+			if (dataA->number == dataB->number) {
+				// Match successful
+				auto cardA = _selCardA;
+				auto cardB = _selCardB;
+				_selCardB->flipToFront([cardA, cardB]() {
+					cardA->runAction(Sequence::create(
+						Spawn::create(
+							FadeOut::create(0.25),
+							ScaleTo::create(0.25, 0.25), NULL),
+						CallFunc::create([cardA]() { cardA->removeFromParent(); }),
+						NULL));
+					cardB->runAction(Sequence::create(
+						Spawn::create(
+							FadeOut::create(0.25),
+							ScaleTo::create(0.25, 0.25), NULL),
+						CallFunc::create([cardB]() { cardB->removeFromParent(); }),
+						NULL));
+				});
+
+				_cardTable[dataA->row][dataA->column] = nullptr;
+				_cardTable[dataB->row][dataB->column] = nullptr;
+				_selCardA = nullptr;
+				_selCardB = nullptr;
+				_unfinishedCard -= 2;
+				if (_unfinishedCard == 0 && _completeCallback != nullptr) {
+					_completeCallback();
+				}
+			}
+			else
+			{
+				// Match failure
+				auto cardA = _selCardA;
+				auto cardB = _selCardB;
+				_selCardB->flipToFront([cardA, cardB]() {
+					cardA->flipToBack();
+					cardB->flipToBack();
+				});
+				_selCardA = nullptr;
+				_selCardB = nullptr;
+			}
+		}
+	};
+
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 }

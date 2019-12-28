@@ -68,6 +68,11 @@ bool HelloWorld::init()
 	level->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
 	auto scale = visibleSize.height / (levelSize.height + 40);
 	level->setScale(scale);
+	level->registerCallfunc([](CardData* cardA, CardData* cardB) {
+		CCLOG("CardA number:%d, CardB number:%d", cardA->number, cardB->number);
+	}, []() {
+		CCLOG("Complete");
+	});
 	this->addChild(level);
     return true;
 }

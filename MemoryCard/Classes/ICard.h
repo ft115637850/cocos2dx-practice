@@ -1,6 +1,6 @@
 #pragma once
 
-#include <functional>
+
 #include "CardData.h"
 #include "CardState.h"
 #include "cocos2d.h"
