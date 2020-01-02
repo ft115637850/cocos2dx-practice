@@ -11,7 +11,7 @@ class MemoryCardLevel : public Layer
 private:
 	LevelData _levelData;
 	std::vector<std::vector<ICard*>> _cardTable;
-	int _unfinishedCard;
+	unsigned int _unfinishedCard;
 	ICard* _selCardA;
 	ICard* _selCardB;
 	std::function<void(CardData* cardA, CardData* cardB)> _pairCallback;

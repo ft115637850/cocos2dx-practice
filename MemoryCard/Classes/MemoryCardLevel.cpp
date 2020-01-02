@@ -57,14 +57,24 @@ void MemoryCardLevel::initCardLaryout()
 	}
 
 	CardFactory factory;
-	int number = 0;
+	Vector<ICard*> cardList;
+	unsigned int number = 0;
+	for (number = 0; number < _levelData.rows*_levelData.columns; number++) {
+		// Create card
+		ICard* card = factory.createCard(backId, number / 2);
+		cardList.pushBack(card);
+	}
+	
+	this->_unfinishedCard = number;
+
 	for (unsigned int row = 0; row < _levelData.rows; ++row) {
 		for (unsigned int column = 0; column < _levelData.columns; ++column) {
-			// Create card
-			ICard* card = factory.createCard(backId, number / 2);
+			// int idx = CCRANDOM_0_1()*cardList.size();
+			// auto card = cardList.at(idx);
+			auto card = cardList.getRandomObject();
+			cardList.eraseObject(card);
 			card->getCardData()->row = row;
 			card->getCardData()->column = column;
-			number++;
 
 			// Set card position
 			int space = 20;
@@ -84,7 +94,6 @@ void MemoryCardLevel::initCardLaryout()
 			}
 		}
 	}
-	this->_unfinishedCard = number;
 }
 
 void MemoryCardLevel::initTouchEvent()
