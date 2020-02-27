@@ -10,6 +10,9 @@ USING_NS_CC;
 
 class MemoryCardScene : public Layer {
 protected:
+	int _nowLevel;
+	int _allLevel;
+	std::vector<LevelData> _levelDataList;
 	LevelData _nowLevelData;
 	MemoryCardLevel* _nowLevelLayer;
 	std::shared_ptr<ScoreStrategyBase> _scoreStrategy;
@@ -23,6 +26,8 @@ public:
 	static Scene* createScene(std::shared_ptr<ScoreStrategyBase> scoreStrategy);
 	static MemoryCardScene* create(std::shared_ptr<ScoreStrategyBase> scoreStrategy);
 	bool initWithScoreStrategy(std::shared_ptr<ScoreStrategyBase> scoreStrategy);
+	void initLevelDataList();
 	virtual void update(float t);
-	virtual void newGame();
+	void newGame();
+	void nextLevel();
 };

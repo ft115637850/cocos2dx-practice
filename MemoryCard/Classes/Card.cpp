@@ -34,6 +34,7 @@ void Card::flipFromTo(Node * a, Node * b, const std::function<void()>& callback)
 Card::Card(): _backImage(nullptr), _frontImage(nullptr), _state(CardState::BACK)
 {
 	this->setCascadeColorEnabled(true);
+	this->setCascadeOpacityEnabled(true);
 }
 
 

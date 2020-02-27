@@ -5,6 +5,7 @@
 
 MemoryCardLevel::MemoryCardLevel(): _selCardA(nullptr), _selCardB(nullptr), _unfinishedCard(0)
 {
+	this->setCascadeOpacityEnabled(true);
 }
 
 MemoryCardLevel::~MemoryCardLevel()
@@ -38,6 +39,7 @@ bool MemoryCardLevel::initWithLevelData(LevelData levelData)
 	_levelData = levelData;
 	initCardLaryout();
 	initTouchEvent();
+
 	return true;
 }
 

@@ -1,6 +1,6 @@
 #include "MemoryCardScene.h"
 
-MemoryCardScene::MemoryCardScene() :_scoreData({}), _nowLevelLayer(nullptr)
+MemoryCardScene::MemoryCardScene() :_nowLevel(-1), _allLevel(0), _scoreData({}), _nowLevelLayer(nullptr)
 {
 	_scoreData.energy = 1000;
 }
@@ -47,9 +47,47 @@ bool MemoryCardScene::initWithScoreStrategy(std::shared_ptr<ScoreStrategyBase> s
 	_scoreText->setPosition(visibleSize.width - 20, visibleSize.height - 33);
 	_scoreText->setScale(0.75);
 	this->addChild(_scoreText);
+
+	initLevelDataList();
 	newGame();
 	this->scheduleUpdate();
 	return true;
+}
+
+void MemoryCardScene::initLevelDataList()
+{
+	auto str = FileUtils::getInstance()->getStringFromFile("leveldata.csv");
+	std::vector<std::string> rowList;
+	char *row = strtok((char *)str.c_str(), "\n");
+	while (row) {
+		rowList.push_back(row);
+		row = strtok(nullptr, "\n");
+	}
+
+	for (auto row = rowList.begin(); row != rowList.end(); ++row)
+	{
+		char* rows = strtok((char*)row->c_str(), ",");
+		char* columns= strtok(nullptr, ",");
+		char* loss = strtok(nullptr, ",");
+
+		if (rows == nullptr || columns == nullptr || loss == nullptr)
+		{
+			continue;
+		}
+
+		LevelData level;
+		level.rows = atoi(rows);
+		level.columns = atoi(columns);
+		level.loss = atoi(loss);
+
+		if (level.rows*level.columns <= 0 || (level.rows*level.columns) % 2 != 0 || level.loss < 0) {
+			continue;
+		}
+
+		_levelDataList.push_back(level);
+	}
+
+	_allLevel = _levelDataList.size();
 }
 
 void MemoryCardScene::update(float t)
@@ -71,20 +109,22 @@ void MemoryCardScene::update(float t)
 
 void MemoryCardScene::newGame()
 {
+	_nowLevel = -1;
+	nextLevel();
+}
+
+void MemoryCardScene::nextLevel()
+{
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-	/*CardFactory fac;
-	auto card = fac.createCard(5, 3);
-	card->setPosition(Vec2(visibleSize.width/2, visibleSize.height/2));
-	addChild(card);
-	card->flipToFront();*/
-	LevelData data = {};
-	data.rows = 4;
-	data.columns = 3;
-	data.loss = 5;
-	_nowLevelData = data;
-	auto level = _nowLevelLayer = MemoryCardLevel::create(data);
+	_nowLevel++;
+	if (_nowLevel > _allLevel)
+	{
+		_nowLevel = 0;
+	}
+	_nowLevelData = _levelDataList[_nowLevel];
+	auto level = MemoryCardLevel::create(_nowLevelData);
 	auto levelSize = level->getContentSize();
 	level->setAnchorPoint(Vec2(0.5, 0.5));
 	level->ignoreAnchorPointForPosition(false);
@@ -92,12 +132,19 @@ void MemoryCardScene::newGame()
 	auto scale = visibleSize.height / (levelSize.height + 200);
 	level->setScale(scale);
 	level->setPositionY(level->getPositionY() - 60 * scale);
-
+	level->setScale(2);
+	this->addChild(level);
+	level->setOpacity(0);
+	level->runAction(Spawn::create(FadeIn::create(1), ScaleTo::create(1, scale), NULL));
+	_nowLevelLayer = level;
+	
 	level->registerCallfunc([this](CardData* cardA, CardData* cardB) {
 		_scoreStrategy->execute(&_scoreData, cardA, cardB);
 		CCLOG("Score:%d, Energy:%d, maxContinuous:%d", _scoreData.score, _scoreData.energy, _scoreData.maxContinuous);
-	}, []() {
+	}, [this]() {
 		CCLOG("Complete");
+		CC_SAFE_RETAIN(_nowLevelLayer);
+		_nowLevelLayer->removeFromParent();
+		nextLevel();
 	});
-	this->addChild(level);
 }
