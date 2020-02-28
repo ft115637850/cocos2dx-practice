@@ -5,6 +5,7 @@
 #include "Background.h"
 #include "EnergyBar.h"
 #include "ScoreText.h"
+#include "PauseBox.h"
 
 USING_NS_CC;
 
@@ -20,6 +21,7 @@ protected:
 	Background* _background;
 	EnergyBar* _energybar;
 	ScoreText* _scoreText;
+    ui::Button* _pauseButton;
 public:
 	MemoryCardScene();
 	virtual ~MemoryCardScene();
@@ -27,6 +29,7 @@ public:
 	static MemoryCardScene* create(std::shared_ptr<ScoreStrategyBase> scoreStrategy);
 	bool initWithScoreStrategy(std::shared_ptr<ScoreStrategyBase> scoreStrategy);
 	void initLevelDataList();
+	void initUI();
 	virtual void update(float t);
 	void newGame();
 	void nextLevel();

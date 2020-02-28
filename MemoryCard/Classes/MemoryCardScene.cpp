@@ -35,20 +35,11 @@ bool MemoryCardScene::initWithScoreStrategy(std::shared_ptr<ScoreStrategyBase> s
 	if (Layer::init() == false) {
 		return false;
 	}
-
-	Size visibleSize = Director::getInstance()->getVisibleSize();
+	
 	_scoreStrategy = scoreStrategy;
-	_background = Background::create();
-	this->addChild(_background);
-	_energybar = EnergyBar::create();
-	_energybar->setPosition(visibleSize.width / 2, visibleSize.height - 40.0f);
-	this->addChild(_energybar);
-	_scoreText = ScoreText::create();
-	_scoreText->setPosition(visibleSize.width - 20, visibleSize.height - 33);
-	_scoreText->setScale(0.75);
-	this->addChild(_scoreText);
-
+	
 	initLevelDataList();
+	initUI();
 	newGame();
 	this->scheduleUpdate();
 	return true;
@@ -88,6 +79,34 @@ void MemoryCardScene::initLevelDataList()
 	}
 
 	_allLevel = _levelDataList.size();
+}
+
+void MemoryCardScene::initUI()
+{
+	Size visibleSize = Director::getInstance()->getVisibleSize();
+	_background = Background::create();
+	this->addChild(_background);
+	_energybar = EnergyBar::create();
+	_energybar->setPosition(visibleSize.width / 2, visibleSize.height - 40.0f);
+	this->addChild(_energybar);
+	_scoreText = ScoreText::create();
+	_scoreText->setPosition(visibleSize.width - 20, visibleSize.height - 33);
+	_scoreText->setScale(0.75);
+	this->addChild(_scoreText);
+	_pauseButton = ui::Button::create("pause.png");
+	_pauseButton->setAnchorPoint(Vec2(0, 1));
+	_pauseButton->setPosition(Vec2(0, visibleSize.height));
+	this->addChild(_pauseButton);
+	_pauseButton->addClickEventListener([this](Ref* ref) {
+		this->unscheduleUpdate();
+		auto pausebox = PauseBox::create();
+		pausebox->registerCallback([this, pausebox]() {
+			CC_SAFE_RETAIN(pausebox);
+			pausebox->removeFromParent();
+			this->scheduleUpdate();
+		}, []() {});
+		this->addChild(pausebox);
+	});
 }
 
 void MemoryCardScene::update(float t)
