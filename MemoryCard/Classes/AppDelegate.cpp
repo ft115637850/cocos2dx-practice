@@ -23,8 +23,7 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
-#include "ScoreStrategy.h"
-#include "MemoryCardScene.h"
+#include "StartScene.h"
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1
@@ -119,8 +118,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
 
     // create a scene. it's an autorelease object
-	std::shared_ptr<ScoreStrategy> strategy(new ScoreStrategy());
-    auto scene = MemoryCardScene::createScene(strategy);
+    auto scene = StartScene::createScene();
 
     // run
     director->runWithScene(scene);

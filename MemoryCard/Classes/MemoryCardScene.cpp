@@ -104,7 +104,9 @@ void MemoryCardScene::initUI()
 			CC_SAFE_RETAIN(pausebox);
 			pausebox->removeFromParent();
 			this->scheduleUpdate();
-		}, []() {});
+		}, []() {
+			SceneMediator::getInstance()->gotoStartScene();
+		});
 		this->addChild(pausebox);
 	});
 }
@@ -124,6 +126,31 @@ void MemoryCardScene::update(float t)
 
 	_energybar->updateView(_scoreData.energy);
 	_scoreText->updateView(_scoreData.score);
+
+	if (_scoreData.energy <= 0)
+	{
+		UserDefault::getInstance()->setIntegerForKey(NEW_SCORE, _scoreData.score);
+		std::vector<int> scoreList;
+		scoreList.push_back(_scoreData.score);
+
+		for (int i = 0; i < 5; i++)
+		{
+			int score = UserDefault::getInstance()->getIntegerForKey(StringUtils::format("%s%d", RANK_SCORE, i).c_str(), 0);
+			scoreList.push_back(score);
+		}
+
+		std::sort(scoreList.begin(), scoreList.end(), [](int &a, int &b) { return a > b; });
+
+		int rank = 0;
+		for (auto i = scoreList.begin(); i != scoreList.end(); i++)
+		{
+			UserDefault::getInstance()->setIntegerForKey(StringUtils::format("%s%d", RANK_SCORE, rank).c_str(), *i);
+			rank++;
+		}
+
+		this->unscheduleUpdate();
+		SceneMediator::getInstance()->gotoChartsScene();
+	}
 }
 
 void MemoryCardScene::newGame()

@@ -11,7 +11,6 @@ MemoryCardLevel::MemoryCardLevel(): _selCardA(nullptr), _selCardB(nullptr), _unf
 MemoryCardLevel::~MemoryCardLevel()
 {
 	this->removeAllChildren();
-	this->_eventDispatcher->removeAllEventListeners();
 }
 
 MemoryCardLevel * MemoryCardLevel::create(LevelData levelData)

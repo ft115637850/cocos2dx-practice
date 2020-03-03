@@ -6,6 +6,8 @@
 #include "EnergyBar.h"
 #include "ScoreText.h"
 #include "PauseBox.h"
+#include "UserData.h"
+#include "SceneMediator.h"
 
 USING_NS_CC;
 
