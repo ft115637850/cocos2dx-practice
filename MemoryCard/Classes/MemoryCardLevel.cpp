@@ -158,18 +158,44 @@ void MemoryCardLevel::initTouchEvent()
 				// Match successful
 				auto cardA = _selCardA;
 				auto cardB = _selCardB;
-				_selCardB->flipToFront([cardA, cardB]() {
+				_selCardB->flipToFront([&, cardA, cardB]() {
 					cardA->runAction(Sequence::create(
 						Spawn::create(
 							FadeOut::create(0.25),
 							ScaleTo::create(0.25, 0.25), NULL),
-						CallFunc::create([cardA]() { cardA->removeFromParent(); }),
+						CallFunc::create([this, cardA]()
+						{ 
+							auto p = ParticleExplosion::create();
+							p->setPosition(cardA->getPosition());
+							p->setSpeed(600);
+							p->setSpeedVar(1200);
+							p->setStartColor(Color4F(1, 1, 1, 0.25));
+							p->setStartColorVar(Color4F(0.1, 0.1, 0.1, 0.25));
+							p->setEndColor(Color4F(1, 1, 1, 0.25));
+							p->setEndColorVar(Color4F(0.1, 0.1, 0.1, 0.25));
+							p->setAutoRemoveOnFinish(true);
+							this->addChild(p);
+							cardA->removeFromParent(); 
+						}),
 						NULL));
 					cardB->runAction(Sequence::create(
 						Spawn::create(
 							FadeOut::create(0.25),
 							ScaleTo::create(0.25, 0.25), NULL),
-						CallFunc::create([cardB]() { cardB->removeFromParent(); }),
+						CallFunc::create([this, cardB]()
+						{ 
+							auto p = ParticleExplosion::create();
+							p->setPosition(cardB->getPosition());
+							p->setSpeed(600);
+							p->setSpeedVar(1200);
+							p->setStartColor(Color4F(1, 1, 1, 0.25));
+							p->setStartColorVar(Color4F(0.1, 0.1, 0.1, 0.25));
+							p->setEndColor(Color4F(1, 1, 1, 0.25));
+							p->setEndColorVar(Color4F(0.1, 0.1, 0.1, 0.25));
+							p->setAutoRemoveOnFinish(true);
+							this->addChild(p);
+							cardB->removeFromParent(); 
+						}),
 						NULL));
 				});
 
