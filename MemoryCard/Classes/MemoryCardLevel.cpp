@@ -176,6 +176,7 @@ void MemoryCardLevel::initTouchEvent()
 							p->setAutoRemoveOnFinish(true);
 							this->addChild(p);
 							cardA->removeFromParent(); 
+							CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("ye.mp3");
 						}),
 						NULL));
 					cardB->runAction(Sequence::create(

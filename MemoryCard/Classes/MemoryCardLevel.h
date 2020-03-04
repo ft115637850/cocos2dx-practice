@@ -3,6 +3,7 @@
 #include <vector>
 #include "ICard.h"
 #include "LevelData.h"
+#include "SimpleAudioEngine.h"
 
 USING_NS_CC;
 

@@ -8,6 +8,7 @@ MemoryCardScene::MemoryCardScene() :_nowLevel(-1), _allLevel(0), _scoreData({}),
 MemoryCardScene::~MemoryCardScene()
 {
 	this->unscheduleUpdate();
+	CocosDenshion::SimpleAudioEngine::getInstance()->stopBackgroundMusic("pitpat.mp3");
 }
 
 Scene * MemoryCardScene::createScene(std::shared_ptr<ScoreStrategyBase> scoreStrategy)
@@ -39,6 +40,7 @@ bool MemoryCardScene::initWithScoreStrategy(std::shared_ptr<ScoreStrategyBase> s
 	_scoreStrategy = scoreStrategy;
 	
 	initLevelDataList();
+	CocosDenshion::SimpleAudioEngine::getInstance()->playBackgroundMusic("pitpat.mp3");
 	initUI();
 	newGame();
 	this->scheduleUpdate();
@@ -126,6 +128,18 @@ void MemoryCardScene::update(float t)
 
 	_energybar->updateView(_scoreData.energy);
 	_scoreText->updateView(_scoreData.score);
+	
+	if (_scoreData.energy < 600)
+	{
+		CocosDenshion::SimpleAudioEngine::getInstance()->setBackgroundMusicVolume((600.0f - _scoreData.energy) / 600.0f);
+	}
+	else
+	{
+		// not implemented in cocos2dx source code. 
+		// refer to https://blog.csdn.net/mgsweet/article/details/73303208?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task
+		// https://github.com/jianjieluo/FireMaster/blob/master/musicDependence/SimpleAudioEngine.cpp
+		CocosDenshion::SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(0.0f);
+	}
 
 	if (_scoreData.energy <= 0)
 	{

@@ -8,6 +8,7 @@
 #include "PauseBox.h"
 #include "UserData.h"
 #include "SceneMediator.h"
+#include "SimpleAudioEngine.h"
 
 USING_NS_CC;
 
