@@ -22,6 +22,7 @@ bool Hero::init()
 	setContentSize(s);
 	setAnchorPoint(Vec2(0, 0));
 	setPhysicsBody(PhysicsBody::createBox(s));
+	getPhysicsBody()->setRotationEnable(false);
 	runAction(RepeatForever::create(FlashTool::readJsonSpriteSheet("Hero.json", 0.2f)));
 
 	return true;

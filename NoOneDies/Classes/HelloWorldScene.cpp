@@ -23,15 +23,10 @@
  ****************************************************************************/
 
 #include "HelloWorldScene.h"
+#include "PhyEdge.h"
 #include "SimpleAudioEngine.h"
-#include "Hero.h"
 
 USING_NS_CC;
-
-#define RED_BIT_MASK	0b1000
-#define GREEN_BIT_MASK	0b0100
-#define BLUE_BIT_MASK	0b0010
-#define EDGE_BIT_MASK	0b0001
 
 Scene* HelloWorld::createScene()
 {
@@ -55,23 +50,26 @@ bool HelloWorld::init()
         return false;
     }
 	auto visibleSize = Director::getInstance()->getVisibleSize();
-	this->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
-	this->getPhysicsWorld()->setGravity(Vec2(0, -1000));
+	//this->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
+	//this->getPhysicsWorld()->setGravity(Vec2(0, -1000));
 
 	auto background = LayerColor::create(Color4B(255, 255, 255, 255));
+	background->setContentSize(visibleSize);
 	this->addChild(background);
 
-	auto edge = PhyEdge::create();
-	this->addChild(edge);
+	gcs.pushBack(GameController::create(background, 30));
+	//gcs.pushBack(GameController::create(background, 180));
 
-	auto hero = Hero::create();
-	hero->setPosition(50, 50);
-	addChild(hero);
-
-
-
-
+	scheduleUpdate();
     return true;
+}
+
+void HelloWorld::update(float dt)
+{
+	for (auto it = gcs.begin(); it != gcs.end(); it++)
+	{
+		(*it)->onUpdate();
+	}
 }
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
