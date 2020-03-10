@@ -14,9 +14,13 @@ private:
 	int nextFrameCount;
 	void resetFrameCount();
 	void addBlock();
+	PhyEdge* edge;
+	Hero* hero;
 public:
 	virtual bool init(cocos2d::Layer* layer, float positionY);
 	virtual void onUpdate();
+	bool histTestPoint(Vec2 point);
+	void onUsrTouch();
 	static GameController* create(cocos2d::Layer* layer, float positionY);
 };
 

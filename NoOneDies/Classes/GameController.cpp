@@ -21,8 +21,9 @@ bool GameController::init(cocos2d::Layer * layer, float positionY)
 	_positionY = positionY;
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 
-	auto edge = PhyEdge::create();
+	edge = PhyEdge::create();
 	edge->setPositionY(positionY);
+	edge->setContentSize(visibleSize);
 	_layer->addChild(edge);
 
 	auto ground = Sprite::create();
@@ -32,7 +33,7 @@ bool GameController::init(cocos2d::Layer * layer, float positionY)
 	ground->setPosition(visibleSize.width / 2, 1.5 + positionY);
 	_layer->addChild(ground);
 
-	auto hero = Hero::create();
+	hero = Hero::create();
 	hero->setPosition(50, hero->getContentSize().height/2 + positionY);
 	_layer->addChild(hero);
 
@@ -48,6 +49,16 @@ void GameController::onUpdate()
 		resetFrameCount();
 		addBlock();
 	}
+}
+
+bool GameController::histTestPoint(Vec2 point)
+{
+	return edge->getBoundingBox().containsPoint(point);
+}
+
+void GameController::onUsrTouch()
+{
+	hero->getPhysicsBody()->setVelocity(Vec2(0, 400));
 }
 
 GameController * GameController::create(cocos2d::Layer * layer, float positionY)

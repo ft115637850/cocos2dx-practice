@@ -27,6 +27,7 @@
 
 #include <cocos2d.h>
 #include "GameController.h"
+#include "GameOverScene.h"
 
 class HelloWorld : public cocos2d::Scene
 {

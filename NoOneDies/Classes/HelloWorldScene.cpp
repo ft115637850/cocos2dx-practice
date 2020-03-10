@@ -51,16 +51,39 @@ bool HelloWorld::init()
     }
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	//this->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
-	//this->getPhysicsWorld()->setGravity(Vec2(0, -1000));
+	this->getPhysicsWorld()->setGravity(Vec2(0, -1000));
 
 	auto background = LayerColor::create(Color4B(255, 255, 255, 255));
 	background->setContentSize(visibleSize);
 	this->addChild(background);
 
-	gcs.pushBack(GameController::create(background, 30));
-	//gcs.pushBack(GameController::create(background, 180));
+	gcs.insert(0, GameController::create(background, 30));
+	gcs.insert(0, GameController::create(background, 250));
 
 	scheduleUpdate();
+	auto listener = EventListenerPhysicsContact::create();
+	listener->onContactBegin = [this](PhysicsContact& contact) {
+		this->unscheduleUpdate();
+		Director::getInstance()->replaceScene(GameOverScene::createScene());
+		return true;
+	};
+
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+
+	auto touchListener = EventListenerTouchOneByOne::create();
+	touchListener->onTouchBegan = [this](Touch* t, Event* e) {
+		for (auto it = gcs.begin(); it != gcs.end(); it++)
+		{
+			if ((*it)->histTestPoint(t->getLocation()))
+			{
+				(*it)->onUsrTouch();
+				break;
+			}
+		}
+		return true;
+	};
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touchListener, this);
+
     return true;
 }
 

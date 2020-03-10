@@ -24,6 +24,7 @@ bool RandomBlock::init()
 	setContentSize(s);
 	setPhysicsBody(PhysicsBody::createBox(s));
 	getPhysicsBody()->setDynamic(false);
+	getPhysicsBody()->setContactTestBitmask(1);
 	setPositionX(visibleSize.width);
 	scheduleUpdate();
 	return true;
@@ -31,7 +32,7 @@ bool RandomBlock::init()
 
 void RandomBlock::update(float dt)
 {
-	this->setPositionX(getPositionX() - 2);
+	this->setPositionX(getPositionX() - 4);
 	if (getPositionX() < 0)
 	{
 		unscheduleUpdate();
