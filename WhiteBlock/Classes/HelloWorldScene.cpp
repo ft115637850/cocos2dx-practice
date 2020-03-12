@@ -27,6 +27,18 @@
 
 USING_NS_CC;
 
+void HelloWorld::startTimer()
+{
+	startTime = clock();
+	scheduleUpdate();
+	isTimerRunning = true;
+}
+
+void HelloWorld::endTimer()
+{
+	unscheduleUpdate();
+}
+
 Scene* HelloWorld::createScene()
 {
     return HelloWorld::create();
@@ -48,8 +60,19 @@ bool HelloWorld::init()
     {
         return false;
     }
-
+	srand(time(NULL));
     visibleSize = Director::getInstance()->getVisibleSize();
+	gameLayer = Layer::create();
+	addChild(gameLayer);
+
+	timer = Label::create();
+	timer->setTextColor(Color4B::BLUE);
+	timer->setSystemFontSize(48);
+	timer->setPosition(visibleSize.width / 2, visibleSize.height - 50);
+	timer->setString("0.000");
+	addChild(timer);
+	isTimerRunning = false;
+
 	startGame();
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->onTouchBegan = [this](Touch* t, Event* e) {
@@ -60,11 +83,16 @@ bool HelloWorld::init()
 			{
 				if (b->getColor() == Color3B::BLACK)
 				{
+					if (!this->isTimerRunning)
+					{
+						this->startTimer();
+					}
 					b->setColor(Color3B::GRAY);
 					this->moveDown();
 				}
 				else if (b->getColor() == Color3B::GREEN)
 				{
+					this->endTimer();
 					this->moveDown();
 				}
 				else
@@ -79,6 +107,12 @@ bool HelloWorld::init()
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
 
     return true;
+}
+
+void HelloWorld::update(float dt)
+{
+	auto offset = clock() - startTime;
+	timer->setString(StringUtils::format("%g", ((double)offset / 1000)));
 }
 
 
@@ -100,7 +134,7 @@ void HelloWorld::addStartLine()
 	isEnd = false;
 	lineCnt = 0;
 	auto b = WhiteBlock::createWithArgs(Color3B::YELLOW, Size(visibleSize.width, visibleSize.height/4), "", 20, Color4B::BLACK);
-	addChild(b);
+	gameLayer->addChild(b);
 	b->setLineIndex(0);
 }
 
@@ -108,7 +142,7 @@ void HelloWorld::addEndLine()
 {
 	isEnd = true;
 	auto b = WhiteBlock::createWithArgs(Color3B::GREEN, visibleSize, "Game Over", 32, Color4B::BLACK);
-	addChild(b);
+	gameLayer->addChild(b);
 	b->setLineIndex(4);
 }
 
@@ -119,7 +153,7 @@ void HelloWorld::addNormalLine(int lineIdx)
 	for (int i = 0; i < 4; i++)
 	{
 		b = WhiteBlock::createWithArgs(blackIndex == i ? Color3B::BLACK : Color3B::WHITE, Size(visibleSize.width / 4 - 1, visibleSize.height / 4 - 1), "", 20, Color4B::BLACK);
-		addChild(b);
+		gameLayer->addChild(b);
 		b->setPosition(i*visibleSize.width / 4, lineIdx*visibleSize.height / 4);
 		b->setLineIndex(lineIdx);
 	}

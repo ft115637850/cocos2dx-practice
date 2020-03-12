@@ -35,10 +35,17 @@ private:
 	int lineCnt;
 	bool isEnd;
 	cocos2d::Size visibleSize;
+	cocos2d::Layer* gameLayer;
+	cocos2d::Label* timer;
+	long startTime;
+	void startTimer();
+	void endTimer();
+	bool isTimerRunning;
 public:
     static cocos2d::Scene* createScene();
 
     virtual bool init();
+	virtual void update(float dt);
     
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
