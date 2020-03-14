@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #ifndef __HELLOWORLD_SCENE_H__
-#define __HELLOWORLD_SCENE_H__
+#define __HELLOWORLD_SCENE_H__ 
 
 #include "cocos2d.h"
 #include "Pop.h"
@@ -34,8 +34,14 @@ private:
 	cocos2d::Size _visibleSize;
 	int _popWidth;
 	Pop* _popTable[10][10];
+	cocos2d::Vector<Pop*> newClearedPops;
 	void createPopTable();
 	bool onTouchPop(cocos2d::Touch* t, cocos2d::Event* e);
+	bool canBeCleared(Pop* p);
+	bool isGameOver();
+	void clearPops(Pop* p);
+	void moveBlankToTop(Pop* p);
+	void shuffle();
 public:
     static cocos2d::Scene* createScene();
 

@@ -59,8 +59,175 @@ bool HelloWorld::onTouchPop(cocos2d::Touch * t, cocos2d::Event * e)
 	{
 		auto p = _popTable[i][j];
 		log("%d,%d", p->xIdx, p->yIdx);
+		if (canBeCleared(p))
+		{
+			clearPops(p);
+			shuffle();
+			if (isGameOver())
+				Director::getInstance()->replaceScene(TransitionFade::create(1, HelloWorld::create()));
+		}
 	}
 	return true;
+}
+
+bool HelloWorld::canBeCleared(Pop * p)
+{
+	if (p->yIdx + 1 < 10)
+	{
+		auto upPop = _popTable[p->xIdx][p->yIdx + 1];
+		if (p->getNumber() == upPop->getNumber())
+			return true;
+	}
+
+	if (p->yIdx - 1 >= 0)
+	{
+		auto downPop = _popTable[p->xIdx][p->yIdx - 1];
+		if (p->getNumber() == downPop->getNumber())
+			return true;
+	}
+
+	if (p->xIdx - 1 >= 0)
+	{
+		auto leftPop = _popTable[p->xIdx - 1][p->yIdx];
+		if (p->getNumber() == leftPop->getNumber())
+			return true;
+	}
+
+	if (p->xIdx + 1 < 10)
+	{
+		auto rightPop = _popTable[p->xIdx + 1][p->yIdx];
+		if (p->getNumber() == rightPop->getNumber())
+			return true;
+	}
+
+	return false;
+}
+
+bool HelloWorld::isGameOver()
+{
+	for (int i = 0; i < 10; i++)
+		for (int j = 0; j < 10; j++)
+		{
+			if (_popTable[i][j]->getNumber() == -1)
+				continue;
+
+			if (canBeCleared(_popTable[i][j]))
+				return false;
+		}
+
+	return true;
+}
+
+void HelloWorld::clearPops(Pop * p)
+{
+	int clearNumber = p->getNumber();
+	if (clearNumber == -1)
+		return;
+
+	p->setNumber(-1);
+	newClearedPops.pushBack(p);
+	if (p->yIdx + 1 < 10)
+	{
+		auto upPop = _popTable[p->xIdx][p->yIdx + 1];
+		if (clearNumber == upPop->getNumber())
+		{
+			clearPops(upPop);
+		}
+	}
+
+	if (p->yIdx - 1 >= 0)
+	{
+		auto downPop = _popTable[p->xIdx][p->yIdx - 1];
+		if (clearNumber == downPop->getNumber())
+			clearPops(downPop);
+	}
+
+	if (p->xIdx - 1 >= 0)
+	{
+		auto leftPop = _popTable[p->xIdx - 1][p->yIdx];
+		if (clearNumber == leftPop->getNumber())
+			clearPops(leftPop);
+	}
+
+	if (p->xIdx + 1 < 10)
+	{
+		auto rightPop = _popTable[p->xIdx + 1][p->yIdx];
+		if (clearNumber == rightPop->getNumber())
+			clearPops(rightPop);
+	}
+}
+
+void HelloWorld::moveBlankToTop(Pop * p)
+{
+	if (p->yIdx == 9)
+		return;
+
+	auto movingPop = p;
+	for (int j = p->yIdx + 1; j < 10; j++)
+	{
+		auto upper = _popTable[p->xIdx][j];
+		if (upper->getNumber() == -1)
+			continue;
+
+		movingPop->setNumber(upper->getNumber());
+		upper->setNumber(-1);
+		movingPop = upper;
+	}
+}
+
+void HelloWorld::shuffle()
+{
+	std::vector<int> shuffleColumns;
+	// Top to Down
+	for (auto p : newClearedPops)
+	{
+		if (shuffleColumns.size() == 0)
+		{
+			shuffleColumns.push_back(p->xIdx);
+		}
+		else
+		{
+			int min = shuffleColumns[shuffleColumns.size() - 1];
+			int max = (*shuffleColumns.begin());
+			if (p->xIdx != min && p->xIdx != max)
+			{
+				if (p->xIdx < min)
+				{
+					shuffleColumns.push_back(p->xIdx);
+				}
+				else if (p->xIdx > max)
+				{
+					shuffleColumns.insert(shuffleColumns.begin(), p->xIdx);
+				}
+			}
+		}
+
+		moveBlankToTop(p);
+	}
+
+	newClearedPops.clear();
+
+	// Right to Left
+	for (int col : shuffleColumns)
+	{
+		log("check column %d", col);
+		if (_popTable[col][0]->getNumber() == -1)
+		{
+			log("empty column %d", col);
+			for (int movingCol = col+1; movingCol < 10; movingCol++)
+			{
+				if (_popTable[movingCol][0]->getNumber() == -1)
+					break;
+
+				for (int moveingRow = 0; moveingRow < 10; moveingRow++)
+				{
+					_popTable[movingCol - 1][moveingRow]->setNumber(_popTable[movingCol][moveingRow]->getNumber());
+					_popTable[movingCol][moveingRow]->setNumber(-1);
+				}
+			}
+		}
+	}
+	shuffleColumns.clear();
 }
 
 Scene* HelloWorld::createScene()
