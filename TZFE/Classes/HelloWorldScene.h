@@ -35,6 +35,10 @@ private:
 	float _firstY;
 	cocos2d::Size _visibleSize;
 	CardSprite* _cardsTable[4][4];
+	unsigned int _cardCount;
+	unsigned int _score;
+	cocos2d::LabelTTF* _scoreTitle;
+	cocos2d::LabelTTF* _scoreDisplay;
 	bool onTouchBegan(cocos2d::Touch* t, cocos2d::Event* e);
 	void onTouchEnded(cocos2d::Touch* t, cocos2d::Event* e);
 	void createCards();
@@ -42,6 +46,8 @@ private:
 	void moveCardsToRight();
 	void moveCardsUp();
 	void moveCardsDown();
+	void generateNewCards();
+	bool isGameOver();
 public:
     static cocos2d::Scene* createScene();
 

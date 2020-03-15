@@ -40,17 +40,21 @@ USING_NS_CC;
 	 auto l = t->getLocation();
 	 auto distanceX = l.x - _firstX;
 	 auto distanceY = l.y - _firstY;
+	 bool hasMoved = false;
 	 if (abs(distanceX) > abs(distanceY))
 	 {
 		 if (distanceX > 5)
 		 {
 			 log("moving right");
 			 moveCardsToRight();
+			 hasMoved = true;
+			 
 		 }
 		 else if (distanceX < -5)
 		 {
 			 log("moving left");
 			 moveCardsToLeft();
+			 hasMoved = true;
 		 }
 	 }
 	 else
@@ -59,13 +63,25 @@ USING_NS_CC;
 		 {
 			 log("moving top");
 			 moveCardsUp();
+			 hasMoved = true;
 		 }
 		 else if (distanceY < -5)
 		 {
 			 log("moving down");
 			 moveCardsDown();
+			 hasMoved = true;
 		 }
 	 }
+
+	 if (hasMoved)
+	 {
+		 if (isGameOver())
+			 Director::getInstance()->replaceScene(TransitionFade::create(1, HelloWorld::createScene()));
+		 else if (_cardCount < 4 * 4)
+			 generateNewCards();
+	 }
+
+	 log("total cards: %d", _cardCount);
  }
 
  void HelloWorld::createCards()
@@ -75,7 +91,7 @@ USING_NS_CC;
 	 {
 		 for (int col = 0; col < 4; col++)
 		 {
-			 CardSprite* card = CardSprite::createCard(2, cardWdith, cardWdith, cardWdith*col + 20, cardWdith*row + 20 + _visibleSize.height / 6);
+			 CardSprite* card = CardSprite::createCard(0, cardWdith, cardWdith, cardWdith*col + 20, cardWdith*row + 20 + _visibleSize.height / 6);
 			 addChild(card);
 			 _cardsTable[row][col] = card;
 		 }
@@ -102,6 +118,9 @@ USING_NS_CC;
 					 {
 						 _cardsTable[row][col]->setNumber(_cardsTable[row][nextCol]->getNumber() * 2);
 						 _cardsTable[row][nextCol]->setNumber(0);
+						 _score += _cardsTable[row][col]->getNumber();
+						 _scoreDisplay->setString(StringUtils::format("%d", _score));
+						 _cardCount--;
 					 }
 					 break;
 				 }
@@ -130,6 +149,9 @@ USING_NS_CC;
 					 {
 						 _cardsTable[row][col]->setNumber(_cardsTable[row][nextCol]->getNumber() * 2);
 						 _cardsTable[row][nextCol]->setNumber(0);
+						 _score += _cardsTable[row][col]->getNumber();
+						 _scoreDisplay->setString(StringUtils::format("%d", _score));
+						 _cardCount--;
 					 }
 					 break;
 				 }
@@ -158,6 +180,9 @@ USING_NS_CC;
 					 {
 						 _cardsTable[row][col]->setNumber(_cardsTable[row][col]->getNumber() * 2);
 						 _cardsTable[nextRow][col]->setNumber(0);
+						 _score += _cardsTable[row][col]->getNumber();
+						 _scoreDisplay->setString(StringUtils::format("%d", _score));
+						 _cardCount--;
 					 }
 					 break;
 				 }
@@ -186,12 +211,49 @@ USING_NS_CC;
 					 {
 						 _cardsTable[row][col]->setNumber(_cardsTable[row][col]->getNumber() * 2);
 						 _cardsTable[nextRow][col]->setNumber(0);
+						 _score += _cardsTable[row][col]->getNumber();
+						 _scoreDisplay->setString(StringUtils::format("%d", _score));
+						 _cardCount--;
 					 }
 					 break;
 				 }
 			 }
 		 }
 	 }
+ }
+
+ void HelloWorld::generateNewCards()
+ {
+	 int i = CCRANDOM_0_1() * 4;
+	 int j = CCRANDOM_0_1() * 4;
+	 if (_cardsTable[i][j]->getNumber() > 0) {
+		 generateNewCards();
+	 }
+	 else {
+		 _cardsTable[i][j]->setNumber(CCRANDOM_0_1() * 10 < 1 ? 4 : 2);
+		 _cardCount++;
+	 }
+ }
+
+ bool HelloWorld::isGameOver()
+ {
+	 if (_cardCount < 4 * 4)
+	 {
+		 return false;
+	 }
+
+	 for (int i = 0; i < 4; i++)
+		 for (int j = 0; j < 4; j++)
+		 {
+			 int num = _cardsTable[i][j]->getNumber();
+			 if ((i + 1 < 4 && _cardsTable[i + 1][j]->getNumber() == num) ||
+				 (i - 1 >= 0 && _cardsTable[i - 1][j]->getNumber() == num) ||
+				 (j + 1 < 4 && _cardsTable[i][j + 1]->getNumber() == num) ||
+				 (j - 1 >= 0 && _cardsTable[i][j - 1]->getNumber() == num))
+				 return false;
+		 }
+
+	 return true;
  }
 
  Scene* HelloWorld::createScene()
@@ -215,7 +277,9 @@ bool HelloWorld::init()
     {
         return false;
     }
-
+	srand(time(NULL));
+	_cardCount = 0;
+	_score = 0;
 	_visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 	auto listener = EventListenerTouchOneByOne::create();
@@ -224,7 +288,14 @@ bool HelloWorld::init()
 	this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
 	auto bg = LayerColor::create(Color4B(180, 170, 160, 255));
 	addChild(bg);
+	_scoreTitle = LabelTTF::create("Score:", "HirakakuProN-W6", 40);
+	_scoreTitle->setPosition(_visibleSize.width / 5, _visibleSize.height - 150);
+	addChild(_scoreTitle);
+	_scoreDisplay = LabelTTF::create("0", "HirakakuProN-W6", 40);
+	_scoreDisplay->setPosition(_visibleSize.width / 2, _visibleSize.height - 150);
+	addChild(_scoreDisplay);
 	createCards();
-    
+	generateNewCards();
+	generateNewCards();
     return true;
 }
