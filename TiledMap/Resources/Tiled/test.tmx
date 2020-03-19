@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.3.3" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="3">
+ <properties>
+  <property name="type" value="information1"/>
+ </properties>
+ <tileset firstgid="1" source="tmw_desert_spacing.tsx"/>
+ <layer id="3" name="scene" width="25" height="25">
+  <properties>
+   <property name="type" value="information2"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJzl1HsLgjAUh+F1v98hraCySLpQ+P0/Xb9Bgh225TmbRPTHg+DtdZuaKqW2FTob9q1gHcDG0U3gEMDxy40LXIVOJRs+kpKNGtQFGoxGD/oCA0ZjBnOBBaPRho5Al9EYw0Rg+mcNvRYjcm0TooKWZ8M0Bn3tDtLXlp6TP0Ps2chgb2no4/m/+i5sDNX7O0rnks6RpMFd60+NpWNNXQ3Tv/pmaUjGQuey+N2H/j5M47M19HxFAcSOxq/KKr7/A559+Txv
+  </data>
+ </layer>
+ <objectgroup color="#640000" id="5" name="obj">
+  <object id="1" name="color" x="273" y="560" width="105" height="40"/>
+  <object id="2" name="player" x="307" y="78" width="22" height="23">
+   <properties>
+    <property name="type" value="information4"/>
+   </properties>
+   <ellipse/>
+  </object>
+ </objectgroup>
+</map>
